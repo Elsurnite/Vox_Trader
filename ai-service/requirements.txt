@@ -1,0 +1,41 @@
+# AI Service Dependencies
+# PatchTST Model için
+
+# Deep Learning Framework
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# Time Series Libraries
+pytorch-forecasting>=1.0.0
+tsai>=0.3.0
+
+# PatchTST Implementation
+# patchtslib veya custom implementation
+
+# Data Processing
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+
+# Technical Indicators
+ta-lib>=0.4.28
+pandas-ta>=0.3.14b0
+
+# API Framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+
+# Binance API
+python-binance>=1.0.19
+ccxt>=4.1.0
+
+# Utilities
+python-dotenv>=1.0.0
+aiohttp>=3.9.0
+websockets>=12.0
+
+# Model Evaluation
+matplotlib>=3.8.0
+seaborn>=0.13.0

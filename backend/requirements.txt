@@ -1,0 +1,26 @@
+# Vox Trader Backend - Python
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic[email-validator]>=2.5.0
+pydantic-settings>=2.0.0
+
+# MySQL
+PyMySQL>=1.1.0
+cryptography>=41.0.0
+
+# Auth
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.0.1,<4.1.0
+
+# Env
+python-dotenv>=1.0.0
+
+# CORS
+python-multipart>=0.0.6
+
+# Binance API
+httpx>=0.26.0
+
+# Agent arka plan grafik (candlestick)
+matplotlib>=3.7.0
