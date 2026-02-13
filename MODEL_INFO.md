@@ -1,67 +1,82 @@
-# PatchTST - Trading Model Seçimi
+# PatchTST — Trading Model
 
-## 🎯 Seçilen Model: PatchTST (Patch-based Time Series Transformer)
+<p align="center">
+  <strong>Chosen forecasting model for Vox Trader</strong><br/>
+  <em>Patch-based Time Series Transformer for price prediction and trading signals</em>
+</p>
 
-### Neden PatchTST?
+---
 
-✅ **2025'te en iyi performans** - Time series forecasting için state-of-the-art  
-✅ **Hızlı** - Training ve inference hızı yüksek  
-✅ **Multivariate** - OHLCV + teknik göstergeleri birlikte işleyebilir  
-✅ **Long-range dependencies** - Uzun vadeli pattern'leri yakalar  
-✅ **Crypto için optimize** - Finansal veriler için test edilmiş  
+## Why PatchTST
 
-### Model Özellikleri
+- **State-of-the-art** for time series forecasting (2025)
+- **Fast** training and inference
+- **Multivariate** — handles OHLCV and technical indicators together
+- **Long-range dependencies** — captures longer-term patterns
+- **Crypto-oriented** — validated on financial-style data
 
-- **Architecture:** Transformer-based (self-attention)
-- **Input:** Historical price data (OHLCV) + Technical indicators
-- **Output:** Future price prediction + Trading signals (BUY/SELL/HOLD)
-- **Training:** Supervised learning on historical data
-- **Inference:** Real-time prediction (< 100ms)
+---
 
-### Teknik Detaylar
+## Model Spec
 
-```python
-# Model yapısı
-- Patch-based approach: Time series'i patch'lere böler
-- Self-attention: Long-range dependencies yakalar
-- Multi-head attention: Farklı zaman ölçeklerini öğrenir
-- Encoder-decoder: Sequence-to-sequence prediction
-```
+| Aspect | Detail |
+|--------|--------|
+| Architecture | Transformer (self-attention, patch-based) |
+| Input | Historical OHLCV + technical indicators |
+| Output | Future price prediction + BUY/SELL/HOLD signal |
+| Training | Supervised on historical data |
+| Inference | Real-time target: &lt; 100 ms |
 
-### Kullanım Senaryosu
+### Technical Notes
 
-```
-Input: 
-  - Son 100 candle (OHLCV)
-  - RSI, MACD, Bollinger Bands
-  - Volume data
-  
-Output:
-  - Sonraki 1-24 saatlik fiyat tahmini
-  - Trading sinyali (BUY/SELL/HOLD)
-  - Confidence score
-```
+- **Patch-based:** Time series is split into patches; each patch is one “word” for the transformer.
+- **Self-attention:** Captures long-range dependencies.
+- **Multi-head attention:** Learns different time scales.
+- **Encoder / decoder:** Sequence-to-sequence style prediction.
 
-### Alternatif Modeller (Karşılaştırma)
+---
 
-| Model | Performans | Hız | Karmaşıklık | Öneri |
-|-------|------------|-----|-------------|-------|
-| **PatchTST** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ✅ **ÖNERİLEN** |
-| TFT | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | İyi alternatif |
-| LSTM | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ | Basit başlangıç |
-| GRU | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ | Basit başlangıç |
+## Input / Output Contract (for implementation)
 
-### Kaynaklar
+**Input (per request):**
 
-- **Paper:** "A Time Series is Worth 64 Words: Long-term Forecasting with Transformers"
-- **Library:** `patchtslib` veya PyTorch implementasyonu
-- **GitHub:** PatchTST reposu mevcut
+- Last N candles (e.g. 100) — OHLCV
+- Technical indicators: RSI, MACD, Bollinger Bands
+- Volume data
 
-### Implementation Plan
+**Output:**
 
-1. ✅ Model seçimi: PatchTST
-2. ⏳ Veri toplama: Binance historical data
-3. ⏳ Feature engineering: Technical indicators
-4. ⏳ Model training: Historical data ile
-5. ⏳ Backtesting: Geçmiş verilerle test
-6. ⏳ Production: Real-time inference
+- Price forecast for next 1–24 hours (configurable horizon)
+- Trading signal: `BUY` | `SELL` | `HOLD`
+- Optional confidence score
+
+Use this contract when wiring the model into the backend (e.g. FastAPI service or agent).
+
+---
+
+## Alternative Models (reference)
+
+| Model   | Performance | Speed | Complexity | Use case |
+|--------|-------------|-------|------------|----------|
+| **PatchTST** | High | High | Medium | **Recommended** |
+| TFT        | Good | Medium | High | Alternative |
+| LSTM       | Medium | High | Low | Simple baseline |
+| GRU        | Medium | High | Low | Simple baseline |
+
+---
+
+## Implementation Checklist
+
+1. **Model choice** — PatchTST (done)
+2. **Data** — Binance historical data pipeline
+3. **Features** — OHLCV + technical indicators (RSI, MACD, etc.)
+4. **Training** — Train on historical data; validate on holdout
+5. **Backtesting** — Run strategy on historical data before live/demo
+6. **Production** — Real-time inference endpoint (e.g. under `backend/`)
+
+---
+
+## References
+
+- **Paper:** “A Time Series is Worth 64 Words: Long-term Forecasting with Transformers”
+- **Code:** PatchTST repos; possible use of `patchtslib` or PyTorch implementation

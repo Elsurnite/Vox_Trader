@@ -1,179 +1,137 @@
-# AI Stratejisi - Vox Trader
+# AI Strategy — Vox Trader
 
-## 🎯 Önerilen Yaklaşım: Hybrid (Karma) Sistem
-
-### 1. Kendi AI Modeli (Ana Motor) ⚡
-
-**Kullanım Alanları:**
-- ✅ **Trading sinyalleri** - Al/sat kararları
-- ✅ **Teknik analiz** - Price pattern recognition
-- ✅ **Risk yönetimi** - Position sizing
-- ✅ **Real-time tahminler** - Düşük latency gereken işlemler
-
-**Model Tipleri:**
-```python
-# Örnek yaklaşımlar:
-1. LSTM/GRU Networks - Time series prediction
-2. Transformer Models - Sequence-to-sequence
-3. Reinforcement Learning - Strategy optimization
-4. Ensemble Models - Birden fazla model kombinasyonu
-```
-
-**Avantajlar:**
-- ⚡ Düşük latency (< 100ms)
-- 💰 Ölçeklenebilir maliyet (kendi sunucunuz)
-- 🎯 Trading'e özel optimize edilmiş
-- 🔒 Veri gizliliği
-- 📊 Gerçek zamanlı teknik analiz
+<p align="center">
+  <strong>Hybrid AI architecture</strong><br/>
+  <em>On-device/self-hosted model for trading + external API for NLP and reports</em>
+</p>
 
 ---
 
-### 2. External AI API (Destekleyici) 🤖
+## Approach: Hybrid System
 
-**Kullanım Alanları:**
-- ✅ **Haber analizi** - Crypto haberlerinden sentiment çıkarma
-- ✅ **Rapor üretimi** - Günlük/haftalık trading raporları
-- ✅ **Kullanıcı etkileşimi** - Soru-cevap, açıklamalar
-- ✅ **Kod üretimi** - Strateji geliştirme yardımı
+| Component | Role | Use when |
+|-----------|------|----------|
+| **Own AI model** | Trading engine | Signals, technical analysis, risk, real-time predictions |
+| **External AI API** | Support | News/sentiment, reports, user Q&A, code/strategy help |
 
-**Önerilen API'ler:**
-- **OpenAI GPT-4/5** - Genel amaçlı NLP
-- **Anthropic Claude** - Uzun context, analitik
-- **Google Gemini** - Alternatif seçenek
+---
 
-**Kullanım Stratejisi:**
+## 1. Own AI Model (core engine)
+
+**Responsibilities:**
+
+- Trading signals (BUY/SELL/HOLD)
+- Technical analysis and pattern recognition
+- Position sizing / risk logic
+- Real-time predictions (low latency)
+
+**Options (for implementation):**
+
+- LSTM/GRU — time series prediction
+- Transformer (e.g. PatchTST) — sequence-to-sequence
+- Reinforcement learning — strategy tuning
+- Ensemble — combine multiple models
+
+**Benefits:** Low latency (&lt; 100 ms), scalable cost, trading-specific, data stays on your side.
+
+---
+
+## 2. External AI API (support)
+
+**Responsibilities:**
+
+- News/sentiment analysis (crypto)
+- Report generation (daily/weekly)
+- User Q&A and explanations
+- Strategy/code assistance
+
+**Suggested providers:** OpenAI (GPT-4/5), Anthropic (Claude), Google (Gemini).
+
+**Usage rule:** Call only when needed (news, reports, or user query). Do not use for real-time trading decisions.
+
 ```typescript
-// Sadece gerektiğinde kullan
+// Example: call only when needed
 if (needsNewsAnalysis || needsReport || userQuery) {
-  const result = await callGPTAPI(prompt);
+  const result = await callExternalAI(prompt);
 }
 ```
 
-**Avantajlar:**
-- 🚀 Hızlı implementasyon
-- 💡 Güçlü NLP yetenekleri
-- 📰 Haber ve sentiment analizi
-- 💬 Doğal dil işleme
-
-**Dezavantajlar:**
-- 💸 Maliyet (token bazlı)
-- ⏱️ Latency (API çağrısı)
-- 🔐 Veri gizliliği endişeleri
+**Trade-offs:** Strong NLP, fast to integrate; higher latency and per-token cost. Keep API keys in `backend/.env` and never in frontend.
 
 ---
 
-## 🏗️ Mimari Önerisi
+## Architecture (high level)
 
+```text
+Frontend (Next.js)
+        │
+Backend (FastAPI / Node if applicable)
+        │
+   ┌────┴────┐
+   │         │
+Own model   External API
+(fast,      (NLP, reports,
+ trading)    when needed)
 ```
-┌─────────────────┐
-│   Frontend      │
-│   (Next.js)     │
-└────────┬────────┘
-         │
-┌────────▼────────┐
-│   Backend       │
-│   (Node.js)     │
-└────────┬────────┘
-         │
-    ┌────┴────┐
-    │         │
-┌───▼───┐ ┌──▼──────────┐
-│ Kendi │ │ External AI │
-│ AI    │ │ API (GPT)   │
-│ Model │ │             │
-│       │ │             │
-│ Fast  │ │ Slow but    │
-│ &     │ │ Powerful    │
-│ Custom│ │ NLP         │
-└───────┘ └─────────────┘
-```
+
+Align with existing stack: frontend → backend → own model + optional external API.
 
 ---
 
-## 📊 Kullanım Senaryoları
+## Usage by scenario
 
-### Senaryo 1: Trading Sinyali Üretme
-```python
-# Kendi AI modeli kullan
-def generate_trading_signal(price_data):
-    model = load_trained_model()
-    signal = model.predict(price_data)
-    return signal  # BUY/SELL/HOLD
-```
+**Scenario 1 — Trading signal**
 
-### Senaryo 2: Haber Analizi
-```typescript
-// External API kullan
-async function analyzeNews(newsArticles: string[]) {
-  const prompt = `Analyze these crypto news articles and extract sentiment...`;
-  const analysis = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [{ role: "user", content: prompt }]
-  });
-  return analysis;
-}
-```
+- Use **own model** only.
+- Input: OHLCV + indicators; output: BUY/SELL/HOLD (see `MODEL_INFO.md`).
 
-### Senaryo 3: Kullanıcı Sorusu
-```typescript
-// External API kullan
-async function answerUserQuery(question: string) {
-  const context = await getMarketContext();
-  const answer = await gptAPI.ask(question, context);
-  return answer;
-}
-```
+**Scenario 2 — News / sentiment**
+
+- Use **external API** with a prompt that includes article text and asks for sentiment/summary.
+
+**Scenario 3 — User question**
+
+- Use **external API** with market context (e.g. current pair, recent moves) so answers are relevant.
 
 ---
 
-## 💰 Maliyet Analizi
+## Cost (for planning)
 
-### Kendi AI Modeli
-- **Başlangıç:** GPU sunucu ($50-200/ay)
-- **Ölçekleme:** Daha fazla GPU ($200-1000/ay)
-- **Avantaj:** Sabit maliyet, ölçeklenebilir
+| Component | Typical cost | Notes |
+|-----------|--------------|--------|
+| Own model | GPU server ~ $50–200/mo, scale as needed | Fixed, scalable |
+| External API | ~ $0.03–0.06 per 1K tokens; 10K–100K tokens/day → order of $0.30–6/day | Usage-based |
 
-### External API
-- **GPT-4:** ~$0.03-0.06 per 1K tokens
-- **Günlük kullanım:** 10K-100K tokens = $0.30-6/ay
-- **Avantaj:** Başlangıçta düşük, kullanım bazlı
-
-**Öneri:** Trading sinyalleri için kendi modeli, NLP için API (maliyet optimizasyonu)
+**Recommendation:** Use own model for all trading signals; use external API only for NLP (news, reports, chat).
 
 ---
 
-## 🚀 Başlangıç Stratejisi
+## Phased rollout
 
-### Faz 1: MVP (Minimum Viable Product)
-1. ✅ Basit teknik göstergeler (RSI, MACD)
-2. ✅ External API ile haber analizi
-3. ✅ Temel trading sinyalleri
+**Phase 1 — MVP**
 
-### Faz 2: Kendi Modeli Geliştirme
-1. ✅ Veri toplama ve temizleme
-2. ✅ LSTM modeli eğitimi
-3. ✅ Backtesting ve optimizasyon
-4. ✅ Production'a deploy
+- Simple technical indicators (RSI, MACD)
+- External API for news/sentiment
+- Basic trading signals (can be rule-based first)
 
-### Faz 3: Optimizasyon
-1. ✅ Reinforcement Learning ekleme
-2. ✅ Ensemble modeller
-3. ✅ Real-time learning
-4. ✅ Advanced NLP entegrasyonu
+**Phase 2 — Own model**
+
+- Data pipeline and cleaning
+- Train model (e.g. LSTM or PatchTST)
+- Backtest and tune
+- Deploy inference in backend
+
+**Phase 3 — Optimization**
+
+- Optional: RL, ensemble, or real-time learning
+- Deeper integration of external AI for reports and UX
 
 ---
 
-## 🎯 Sonuç ve Öneri
+## Summary
 
-**Önerilen Strateji:**
-1. **Başlangıç:** External API ile hızlı prototip (GPT-4)
-2. **Geliştirme:** Kendi AI modelini paralel geliştir
-3. **Production:** Hybrid sistem - Her ikisini de kullan
-   - Trading sinyalleri → Kendi modeli
-   - NLP görevleri → External API
+- **Trading path:** Own model only — low latency, full control, no per-call API cost for signals.
+- **NLP path:** External API — news, reports, user Q&A.
+- **Security:** Keep API keys in backend env; do not send sensitive trading logic or keys to external APIs.
 
-**Neden Bu Yaklaşım?**
-- ⚡ En iyi performans (düşük latency)
-- 💰 Maliyet optimizasyonu
-- 🎯 Her görev için en uygun araç
-- 🚀 Hızlı geliştirme + uzun vadeli kontrol
+This keeps the app suitable for implementation: clear boundaries, concrete scenarios, and alignment with the existing README and `MODEL_INFO.md`.
